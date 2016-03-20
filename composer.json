@@ -1,0 +1,16 @@
+{
+    "name": "virge/stork",
+    "description": "Virge::Stork is a library to help with PHP Based WebSockets, offering an abstraction above Ratchet to provide easy of implementation, horizontally scalable services, and per-topic subscription authentication",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Michael Kramer",
+            "email": "kramer@siosphere.com"
+        }
+    ],
+    "require": {
+        "cboden/ratchet": "^0.3.4",
+        "react/zmq": "^0.3.0",
+        "virge/core": "^0.9.0"
+    }
+}
