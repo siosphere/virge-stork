@@ -67,6 +67,9 @@ php -f publish_server.php
 ```
 php -f server.php
 ```
+
+We can also start our webserver within that directory:
+
 ```
 php -S localhost:8000
 ```
