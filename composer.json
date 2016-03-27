@@ -14,5 +14,8 @@
     },
     "require-dev": {
         "virge/core": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {"Virge\\": "Virge/"}
     }
 }
