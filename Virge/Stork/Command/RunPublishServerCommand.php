@@ -4,6 +4,7 @@ namespace Virge\Stork\Command;
 
 use Virge\Cli;
 use Virge\Stork\Service\ZMQMessagingService;
+use Virge\Virge;
 
 /**
  * listens for incoming ZMQ messages, and then broadcasts those out
