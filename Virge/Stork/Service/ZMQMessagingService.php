@@ -75,7 +75,6 @@ class ZMQMessagingService
     public function startPublishingServer()
     {
         $context = $this->getContext();
-        
         $this->pub = $context->getSocket(ZMQ::SOCKET_PUB);
         $this->pub->setSockOpt(ZMQ::SOCKOPT_LINGER, 10);
         foreach($this->websocketServers as $serverConfig) {
