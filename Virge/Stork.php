@@ -37,7 +37,7 @@ class Stork
     public static function push($topics, WebsocketMessage $message)
     {
         $zmqMessage = new ZMQMessage($message, $topics);
-        $this->getZMQMessagingService()->push($zmqMessage);
+        self::getZMQMessagingService()->push($zmqMessage);
     }
     
     /**
