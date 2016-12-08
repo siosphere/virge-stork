@@ -11,8 +11,6 @@ use ZMQContext;
  */
 class ZMQMessagingService
 {
-    const SERVICE_ID = 'virge.stork.service.zmq_messaging';
-    
     /**
      * Hold the server configuration of all our websocket servers
      * [
@@ -116,7 +114,8 @@ class ZMQMessagingService
     /**
      * Get React loop
      */
-    protected function getLoop() {
+    protected function getLoop() 
+    {
         if($this->loop) {
             return $this->loop;
         }

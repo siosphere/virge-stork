@@ -19,9 +19,26 @@ abstract class Message
      * Unique message type to identify the type of message on the frontend
      */
     const MESSAGE_TYPE = '';
-    
+
+    protected $timestamp;
+
     /**
      * Return the data this message contains
      */
     public abstract function getData();
+
+    public function __constructor()
+    {
+        $this->timestamp = new \DateTime();
+    }
+
+    public function getTimestamp()
+    {
+        return $this->timestamp;
+    }
+
+    public function getType()
+    {
+        return $this::MESSAGE_TYPE;
+    }
 }

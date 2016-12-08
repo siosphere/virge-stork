@@ -6,4 +6,4 @@ use Virge\Stork;
 
 $message = new MyMessage();
 
-Stork::push('v1.test.1', $message);
+Stork::push(['v1.test.1'], $message);

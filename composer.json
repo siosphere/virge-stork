@@ -8,12 +8,16 @@
             "email": "kramer@siosphere.com"
         }
     ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
-        "cboden/ratchet": "^0.3.4",
-        "react/zmq": "^0.3.0"
+        "cboden/ratchet": "^0.3.*",
+        "react/zmq": "^0.3.*",
+        "voryx/Thruway": "^0.4.2"
     },
     "require-dev": {
-        "virge/core": "dev-master"
+        "virge/core": "dev-master",
+        "virge/cli": "dev-master"
     },
     "autoload": {
         "psr-4": {"Virge\\": "Virge/"}

@@ -4,7 +4,8 @@ namespace Virge\Stork\Command;
 
 use Virge\Cli;
 use Virge\Stork\Service\PushMessagingService;
-use Virge\Stork\Service\WebsocketServer;
+use Virge\Stork\Service\WebsocketServerService;
+use Virge\Virge;
 
 /**
  * listens for incoming ZMQ messages, and then broadcasts those out
@@ -18,7 +19,10 @@ class RunWebsocketServerCommand extends \Virge\Cli\Component\Command
         if($this->instanceAlreadyRunning()) {
             $this->terminate();
         }
-        Cli::output("starting server");
+        Cli::output("Starting Websocket Client");
+        $this->getWebsocketServerService()->startServer();
+
+        /*Cli::output("starting server");
         $loop   = \React\EventLoop\Factory::create();
         $app = new PushMessagingService;
 
@@ -41,6 +45,11 @@ class RunWebsocketServerCommand extends \Virge\Cli\Component\Command
             $server
         );
 
-        $loop->run();
+        $loop->run();*/
+    }
+
+    public function getWebsocketServerService() : WebsocketServerService
+    {
+        return Virge::service(WebsocketServerService::class);
     }
 }

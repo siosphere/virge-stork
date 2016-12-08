@@ -2,17 +2,37 @@
 
 namespace Virge\Stork\Service;
 
-use Ratchet\ConnectionInterface;
-use Ratchet\Wamp\WampServerInterface;
+use Thruway\ClientSession;
+
 use Virge\Stork\Component\ZMQ\Message as ZMQMessage;
+use Virge\Stork\Component\Websocket\Message as WebsocketMessage;
 
 /**
  * Push messaging service is used to receive messages from ZMQ and broadcast
  * them to any clients connected on the given topic
  */
-class PushMessagingService implements WampServerInterface
+class PushMessagingService
 {
-    protected $topics = [];
+    /**
+     * @var ClientSession
+     */
+    protected $session;
+
+     /**
+     * 
+     * @param ClientSession $session
+     * @param type $loop
+     */
+    public function onSessionStart(ClientSession $session, $loop)
+    {
+        $this->session = $session;
+        $context = new \React\ZMQ\Context($loop);
+        
+        $sub = $context->getSocket(\ZMQ::SOCKET_SUB);
+        $sub->bind("tcp://*:5556");
+        $sub->subscribe("virge:stork");
+        $sub->on('message', [$this, 'onReceiveZMQMessage']);
+    }
     
     /**
      * When we receive a message from the ZMQ Socket, attempt to broadcast it
@@ -27,52 +47,37 @@ class PushMessagingService implements WampServerInterface
         }
         
         $websocketMessage = $message->getWebsocketMessage();
-        $topicStr = $message->getTopicStr();
-        
-        if (!array_key_exists($topicStr, $this->topics)) {
+        if(!$websocketMessage) {
+            return false;
+        }
+
+        foreach($message->getTopics() as $topicId) {
+            $this->broadcastMessageToTopic($websocketMessage, (string) $topicId);
+        }
+    }
+
+    /**
+     * Broadcast a given message to any subscribers on the topicId
+     * @param AbstractPushMessage $message
+     * @param string $topicId
+     * @return \React\Promise\Promise
+     */
+    protected function broadcastMessageToTopic(WebsocketMessage $message, string $topicId)
+    {
+        if(strlen($topicId) === 0) {
             return;
         }
         
-        $topic = $this->topics[$topicStr];
+        //make sure assoc array
+        $jsonArray = json_decode(json_encode($message->getData()), true);
 
-        // re-send the data to all the clients subscribed to that category
-        $topic->broadcast([
-            'type'      =>      $websocketMessage::MESSAGE_TYPE,
-            'data'      =>      $websocketMessage->getData()
-        ]);
-    }
-    
-    /**
-     * Store our topics by topicStr so we can broadcast out easily
-     * @param ConnectionInterface $conn
-     * @param mixed $topic
-     */
-    public function onSubscribe(ConnectionInterface $conn, $topic) 
-    {
-        $this->topics[$topic->getId()] = $topic;
-    }
-    public function onUnSubscribe(ConnectionInterface $conn, $topic) 
-    {
-        
-    }
-    public function onOpen(ConnectionInterface $conn) 
-    {
-    }
-    public function onClose(ConnectionInterface $conn) 
-    {
-    }
-    public function onCall(ConnectionInterface $conn, $id, $topic, array $params) 
-    {
-        $conn->callError($id, $topic, 'You are not allowed to make calls')
-        ->close();
-    }
-    public function onPublish(ConnectionInterface $conn, $topic, $event, array $exclude, array $eligible) 
-    {
-        $conn->close();
-    }
-    
-    public function onError(ConnectionInterface $conn, \Exception $ex) {
-        
+        return $this->session->publish($topicId, [
+            [
+                'type'      =>      $message->getType(),
+                'data'      =>      $jsonArray,
+                'timestamp' =>      $message->getTimestamp(),
+            ]
+        ], [], ["acknowledge" => true]);
     }
     
     /**

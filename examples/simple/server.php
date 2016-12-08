@@ -2,7 +2,7 @@
 
 include 'services.php';
 
-use Virge\Stork\Command\RunPushServerCommand;
+use Virge\Stork\Command\RunWebsocketServerCommand;
 
-$cmd = new RunPushServerCommand();
+$cmd = new RunWebsocketServerCommand();
 $cmd->run();

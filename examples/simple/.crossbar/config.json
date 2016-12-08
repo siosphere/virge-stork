@@ -1,0 +1,69 @@
+{
+    "version": 2,
+    "controller": {},
+    "workers": [
+        {
+            "type": "router",
+            "realms": [
+                {
+                    "name": "realm1",
+                    "roles": [
+                        {
+                            "name": "backend",
+                            "permissions": [
+                                {
+                                    "uri": "io.virge.stork.auth",
+                                    "match": "prefix",
+                                    "allow": {
+                                        "register": true
+                                    }
+                                },
+                                {
+                                    "uri": "io.virge.stork.topic_auth",
+                                    "match": "prefix",
+                                    "allow": {
+                                        "register": true
+                                    }
+                                },
+                                {
+                                    "uri": "v1.*",
+                                    "allow": {
+                                        "publish": true
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "frontend",
+                            "authorizer": "io.virge.stork.topic_auth"
+                        }
+                    ]
+                }
+            ],
+            "transports": [
+                {
+                    "type": "websocket",
+                    "endpoint": {
+                        "type": "tcp",
+                        "port": 80
+                    },
+                    "auth": {
+                        "wampcra": {
+                            "type": "static",
+                            "users": {
+                                "backend": {
+                                    "secret": "${CROSSBAR_BACKEND_SECRET}",
+                                    "role": "backend"
+                                }
+                            }
+                        },
+                        "ticket": {
+                            "type": "dynamic",
+                            "authenticator": "io.virge.stork.auth"
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
