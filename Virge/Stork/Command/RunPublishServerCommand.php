@@ -20,7 +20,7 @@ class RunPublishServerCommand extends \Virge\Cli\Component\Command
         }
         
         Cli::output("starting publish server");
-        Virge::service(ZMQMessagingService::SERVICE_ID)
+        Virge::service(ZMQMessagingService::class)
             ->startPublishingServer();
     }
 }

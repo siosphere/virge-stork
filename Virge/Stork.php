@@ -6,7 +6,7 @@ use Thruway\ClientSession;
 use Virge\Stork\Component\Websocket\Message as WebsocketMessage;
 use Virge\Stork\Component\Websocket\Topic;
 use Virge\Stork\Component\ZMQ\Message as ZMQMessage;
-
+use Virge\Stork\Service\ZMQMessagingService;
 /**
  * Stork is used to setup the websocket and ZMQ servers, provide authentication
  * and per-topic subscription validation. 
@@ -37,7 +37,7 @@ class Stork
     public static function push($topics, WebsocketMessage $message)
     {
         $zmqMessage = new ZMQMessage($message, $topics);
-        Virge::service('virge.stork.service.zmq_messaging')->push($zmqMessage);
+        $this->getZMQMessagingService()->push($zmqMessage);
     }
     
     /**
@@ -173,5 +173,10 @@ class Stork
         $topic = self::$topics[$version][$feedName];
         
         return [$topic, $feedId];
+    }
+
+    protected static function getZMQMessagingService() : ZMQMessagingService
+    {
+        return Virge::service(ZMQMessagingService::class);
     }
 }

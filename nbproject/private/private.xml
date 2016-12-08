@@ -2,13 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group name="CourseHero">
-            <file>file:/Users/coursehero/NetBeansProjects/virge-stork/Virge/Stork/Command/RunPublishServerCommand.php</file>
-            <file>file:/Users/coursehero/NetBeansProjects/virge-stork/Virge/Stork/Command/RunWebsocketServerCommand.php</file>
-            <file>file:/Users/coursehero/NetBeansProjects/virge-stork/examples/simple/push.php</file>
-            <file>file:/Users/coursehero/NetBeansProjects/virge-stork/examples/simple/server.php</file>
-            <file>file:/Users/coursehero/NetBeansProjects/virge-stork/examples/simple/publish_server.php</file>
-            <file>file:/Users/coursehero/NetBeansProjects/virge-stork/examples/simple/services.php</file>
-        </group>
+        <group name="CourseHero"/>
     </open-files>
 </project-private>
