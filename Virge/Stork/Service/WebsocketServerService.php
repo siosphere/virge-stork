@@ -44,7 +44,7 @@ class WebsocketServerService
         $client = new Client($this->realm);
         $client->setAuthId($this->role);
         $client->addClientAuthenticator(new ClientWampCraAuthenticator($this->role, $this->secret));
-        $client->addTransportProvider(new PawlTransportProvider($this->websocketUrl));
+        $client->addTransportProvider(new PawlTransportProvider($this->getIpUrl($this->websocketUrl)));
         $client->on('open', function(ClientSession $session) use($client) {
 
             $this->getPushMessagingService()->onSessionStart($session,  $client->getLoop());
@@ -68,6 +68,21 @@ class WebsocketServerService
 
         });
         $client->start();
+    }
+
+    protected function getIpUrl($websocketUrl)
+    {
+        $urlData = parse_url($websocketUrl);
+        if(!$urlData) {
+            throw new \RuntimeException("Invalid websocket url, should be ws/wss://hostname|ip:80/");
+        }
+
+        $host = $urlData['host'];
+        if(!filter_var($host, FILTER_VALIDATE_IP) === false) {
+            return $websocketUrl;
+        }
+
+        return $urlData['scheme'] . '://' . gethostbyname($urlData['host']) . ':' . $urlData['port'] . $urlData['path'];
     }
 
     protected function getPushMessagingService() : PushMessagingService
