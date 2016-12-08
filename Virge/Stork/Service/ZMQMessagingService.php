@@ -76,8 +76,13 @@ class ZMQMessagingService
         $this->pub = $context->getSocket(ZMQ::SOCKET_PUB);
         $this->pub->setSockOpt(ZMQ::SOCKOPT_LINGER, 10);
         foreach($this->websocketServers as $serverConfig) {
-            $host = $serverConfig['host'];
             $port = $serverConfig['port'];
+            if(!filter_var($serverConfig['host'], FILTER_VALIDATE_IP) === false) {
+                $host = $serverConfig['host'];
+            } else {
+                $host = gethostbyname($serverConfig['host']);
+            }
+
             $this->pub->connect(sprintf("tcp://%s:%s", $host, $port));
         }
         
