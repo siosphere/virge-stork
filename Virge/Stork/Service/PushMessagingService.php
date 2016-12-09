@@ -18,6 +18,8 @@ class PushMessagingService
      */
     protected $session;
 
+    protected $subscription;
+
      /**
      * 
      * @param ClientSession $session
@@ -28,10 +30,18 @@ class PushMessagingService
         $this->session = $session;
         $context = new \React\ZMQ\Context($loop);
         
-        $sub = $context->getSocket(\ZMQ::SOCKET_SUB);
-        $sub->bind("tcp://*:5556");
-        $sub->subscribe("virge:stork");
-        $sub->on('message', [$this, 'onReceiveZMQMessage']);
+        $this->subscription = $context->getSocket(\ZMQ::SOCKET_SUB);
+        $this->subscription->bind(sprintf("tcp://%s:5556", gethostbyname(gethostname())));
+        $this->subscription->subscribe("virge:stork");
+        $this->subscription->on('message', [$this, 'onReceiveZMQMessage']);
+    }
+
+    public function onSessionEnd()
+    {
+        $endpoints = $this->subscription->getEndpoints();
+        foreach($endpoints['bind'] as $endpoint) {
+            $this->subscription->unbind($endpoint);
+        }
     }
     
     /**

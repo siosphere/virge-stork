@@ -67,6 +67,11 @@ class WebsocketServerService
             });
 
         });
+
+        $client->on('close', function() {
+            $this->getPushMessagingService()->onSessionEnd();
+        });
+
         $client->start();
     }
 
