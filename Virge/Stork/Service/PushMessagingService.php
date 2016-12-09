@@ -20,6 +20,13 @@ class PushMessagingService
 
     protected $subscription;
 
+    protected $websocketHostname;
+
+    public function __construct($websocketHostname)
+    {
+        $this->websocketHostname = $websocketHostname;
+    }
+
      /**
      * 
      * @param ClientSession $session
@@ -31,7 +38,7 @@ class PushMessagingService
         $context = new \React\ZMQ\Context($loop);
         
         $this->subscription = $context->getSocket(\ZMQ::SOCKET_SUB);
-        $this->subscription->bind(sprintf("tcp://%s:5556", gethostbyname(gethostname())));
+        $this->subscription->bind(sprintf("tcp://%s:5556", gethostbyname($this->websocketHostname)));
         $this->subscription->subscribe("virge:stork");
         $this->subscription->on('message', [$this, 'onReceiveZMQMessage']);
     }
