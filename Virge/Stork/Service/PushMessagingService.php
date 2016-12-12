@@ -4,6 +4,7 @@ namespace Virge\Stork\Service;
 
 use Thruway\ClientSession;
 
+use Virge\Stork;
 use Virge\Stork\Component\ZMQ\Message as ZMQMessage;
 use Virge\Stork\Component\Websocket\Message as WebsocketMessage;
 
@@ -58,13 +59,16 @@ class PushMessagingService
      */
     public function onReceiveZMQMessage($rawMessage)
     {
+        Stork::debug("Received ZMQ Message");
         $message = $this->getZMQMessage($rawMessage);
         if(!$message) {
+            Stork::debug("Invalid ZMQ Message");
             return;
         }
         
         $websocketMessage = $message->getWebsocketMessage();
         if(!$websocketMessage) {
+            Stork::debug("Invalid Websocket Message");
             return false;
         }
 
@@ -87,7 +91,7 @@ class PushMessagingService
         
         //make sure assoc array
         $jsonArray = json_decode(json_encode($message->getData()), true);
-
+        Stork::debug("Broadcasting message to topic: " . $topicId);
         return $this->session->publish($topicId, [
             [
                 'type'      =>      $message->getType(),

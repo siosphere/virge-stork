@@ -3,6 +3,7 @@
 namespace Virge;
 
 use Thruway\ClientSession;
+use Virge\Cli;
 use Virge\Stork\Component\Websocket\Message as WebsocketMessage;
 use Virge\Stork\Component\Websocket\Topic;
 use Virge\Stork\Component\ZMQ\Message as ZMQMessage;
@@ -33,9 +34,20 @@ class Stork
      * @var array 
      */
     protected static $topics = [];
+
+    protected static $debug = false;
+
+    /**
+     * Pass in a bool to enable or disable debug
+     */
+    public static function setDebug($debug)
+    {
+        self::$debug = $debug;
+    }
     
     public static function push($topics, WebsocketMessage $message)
     {
+        self::debug("Pushing websocket message");
         $zmqMessage = new ZMQMessage($message, $topics);
         self::getZMQMessagingService()->push($zmqMessage);
     }
@@ -178,5 +190,12 @@ class Stork
     protected static function getZMQMessagingService() : ZMQMessagingService
     {
         return Virge::service(ZMQMessagingService::class);
+    }
+
+    public static function debug($message)
+    {
+        if(self::$debug) {
+            Cli::output($message);
+        }
     }
 }
