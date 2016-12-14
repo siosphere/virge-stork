@@ -13,7 +13,7 @@ use Virge\Virge;
 /**
  * Websocket Server, used to setup the session
  */
-class WebsocketServerService
+abstract class AbstractClientService
 {
     protected $websocketUrl;
 
@@ -22,6 +22,8 @@ class WebsocketServerService
     protected $role;
 
     protected $secret;
+
+    protected $client;
 
     /**
      * Setup to use our own TopicManager, so we can validate per topic 
@@ -34,45 +36,30 @@ class WebsocketServerService
         $this->role = $role;
         $this->secret = $secret;
     }
+
+    public abstract function onOpen(ClientSession $session);
+
+    public abstract function onClose();
     
     /**
      * Start a WAMP client that connects to a WAMP router. Registers two functions
      * that will allow it to authenticate connections, and do topic authentication
      */
-    public function startServer()
+    public function startClient()
     {
-        $client = new Client($this->realm);
-        $client->setAuthId($this->role);
-        $client->addClientAuthenticator(new ClientWampCraAuthenticator($this->role, $this->secret));
-        $client->addTransportProvider(new PawlTransportProvider($this->getIpUrl($this->websocketUrl)));
-        $client->on('open', function(ClientSession $session) use($client) {
-
-            $this->getPushMessagingService()->onSessionStart($session,  $client->getLoop());
-
-            $session->register('io.virge.stork.auth', function($details) {
-                $realm = $details[0];
-                $session = $details[2];
-
-
-                return Stork::authenticate($realm, $session);
-            });
-
-            $session->register('io.virge.stork.topic_auth', function($details) {
-                $session = $details[0];
-                $uri = $details[1];
-                $action = $details[2];
-                $userId = $session->authid;
-
-                return $action === 'subscribe' && Stork::verify($session, $uri);
-            });
-
+        $this->client = new Client($this->realm);
+        $this->client->setAuthId($this->role);
+        $this->client->addClientAuthenticator(new ClientWampCraAuthenticator($this->role, $this->secret));
+        $this->client->addTransportProvider(new PawlTransportProvider($this->getIpUrl($this->websocketUrl)));
+        $this->client->on('open', function(ClientSession $session) {
+            return $this->onOpen($session);
         });
 
-        $client->on('close', function() {
-            $this->getPushMessagingService()->onSessionEnd();
+        $this->client->on('close', function() {
+            return call_user_func_array([$this, 'onClose'], func_get_args());
         });
 
-        $client->start();
+        $this->client->start();
     }
 
     protected function getIpUrl($websocketUrl)
@@ -88,10 +75,5 @@ class WebsocketServerService
         }
 
         return $urlData['scheme'] . '://' . gethostbyname($urlData['host']) . ':' . $urlData['port'] . $urlData['path'];
-    }
-
-    protected function getPushMessagingService() : PushMessagingService
-    {
-        return Virge::service(PushMessagingService::class);
     }
 }

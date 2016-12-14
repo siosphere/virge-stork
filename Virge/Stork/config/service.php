@@ -4,6 +4,7 @@ use Virge\Core\Config;
 use Virge\Stork\Service\ZMQMessagingService;
 use Virge\Stork\Service\PushMessagingService;
 use Virge\Stork\Service\WebsocketServerService;
+use Virge\Stork\Service\AuthClientService;
 use Virge\Virge;
 
 $zmqServer = Config::get('stork', 'zmq_server');
@@ -20,4 +21,5 @@ $secret = Config::get('stork', 'secret');
 
 Virge::registerService(ZMQMessagingService::class, new ZMQMessagingService($zmqServer, $zmqPort, $websocketServers));
 Virge::registerService(PushMessagingService::class, new PushMessagingService($websocketHostname));
-Virge::registerService(WebsocketServerService::class, new WebsocketServerService($websocketUrl, $realm, $role, $secret));
+Virge::registerService(WebsocketClientService::class, new WebsocketClientService($websocketUrl, $realm, $role, $secret));
+Virge::registerService(AuthClientService::class, new AuthClientService($websocketUrl, $realm, $role, $secret));

@@ -15,11 +15,11 @@ Virge::Stork provides a ZMQ Publish server. This server subscribes to all
 available Websocket Servers, and will broadcast every push notification to 
 all websocket servers. 
 
-## Websocket Server
-The websocket server subscribes to the ZMQ Publish server, and
-also handles the authentication of clients, and their topic subscriptions.
+## Websocket Client
+The websocket client subscribes to the ZMQ Publish server, when receiving messages from the ZMQ Publish Server it broadcasts to all subscribed.
 
-When receiving messages from the ZMQ Publish Server it broadcasts to all subscribed.
+## Authentication Client
+The Auth Client handles the authentication of clients, and their topic subscriptions.
 
 ## Crossbar.io or other WAMP Router
 Usage requires using crossbar.io or another compliant WAMP Router. Stork
@@ -71,12 +71,15 @@ Stork::authenticator(function($session, &$returnData) {
 
 ## Running Examples
 
-From within examples/simple you'll need to start 2 processes:
+From within examples/simple you'll need to start 3 processes:
 ```
 php -f publish_server.php
 ```
 ```
-php -f server.php
+php -f ws_client.php
+```
+```
+php -f auth_client.php
 ```
 
 You will also need to start a crossbar.io server, an example configuration
