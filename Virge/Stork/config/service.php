@@ -3,7 +3,7 @@
 use Virge\Core\Config;
 use Virge\Stork\Service\ZMQMessagingService;
 use Virge\Stork\Service\PushMessagingService;
-use Virge\Stork\Service\WebsocketServerService;
+use Virge\Stork\Service\WebsocketClientService;
 use Virge\Stork\Service\AuthClientService;
 use Virge\Virge;
 
