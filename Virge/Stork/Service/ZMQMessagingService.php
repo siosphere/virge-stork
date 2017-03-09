@@ -86,7 +86,7 @@ class ZMQMessagingService
         }
         
         $pull = $context->getSocket(ZMQ::SOCKET_PULL);
-        $pull->bind(sprintf("tcp://*:%s", $this->zmqPort));
+        $pull->bind(sprintf("tcp://*:%s", gethostbyname($this->zmqPort)));
         $pull->on('message', [$this, 'onZMQMessage']);
         
         $this->getLoop()->run();

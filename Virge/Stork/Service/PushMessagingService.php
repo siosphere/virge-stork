@@ -39,7 +39,7 @@ class PushMessagingService
         $context = new \React\ZMQ\Context($loop);
         
         $this->subscription = $context->getSocket(\ZMQ::SOCKET_SUB);
-        $this->subscription->bind(sprintf("tcp://%s:5556", $this->websocketHostname));
+        $this->subscription->bind(sprintf("tcp://%s:5556", gethostbyname($this->websocketHostname)));
         $this->subscription->subscribe("virge:stork");
         $this->subscription->on('message', [$this, 'onReceiveZMQMessage']);
     }
