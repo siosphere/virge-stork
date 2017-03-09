@@ -64,12 +64,8 @@ class ZMQMessagingService
         Stork::debug("Pushing ZMQ Message to ZMQ Publishers");
         $context = new ZMQContext();
         $socket = $context->getSocket(ZMQ::SOCKET_PUSH, 'virge:stork');
-        $socket->setSockOpt(ZMQ::SOCKOPT_LINGER, 10);
-        if(!filter_var($this->zmqServer, FILTER_VALIDATE_IP) === false) {
-            $host = $this->zmqServer;
-        } else {
-            $host = gethostbyname($this->zmqServer);
-        }
+        $socket->setSockOpt(ZMQ::SOCKOPT_LINGER, 20);
+        $host = $this->zmqServer;
         $socket->connect(sprintf("tcp://%s:%s", $host, $this->zmqPort));
         $socket->send(serialize($message));
     }
@@ -81,14 +77,10 @@ class ZMQMessagingService
     {
         $context = $this->getContext();
         $this->pub = $context->getSocket(ZMQ::SOCKET_PUB);
-        $this->pub->setSockOpt(ZMQ::SOCKOPT_LINGER, 10);
+        $this->pub->setSockOpt(ZMQ::SOCKOPT_LINGER, 20);
         foreach($this->websocketServers as $serverConfig) {
             $port = $serverConfig['port'];
-            if(!filter_var($serverConfig['host'], FILTER_VALIDATE_IP) === false) {
-                $host = $serverConfig['host'];
-            } else {
-                $host = gethostbyname($serverConfig['host']);
-            }
+            $host = $serverConfig['host'];
             Stork::debug("Connecting to Websocket servers for broadcast: " . sprintf("tcp://%s:%s", $host, $port));
             $this->pub->connect(sprintf("tcp://%s:%s", $host, $port));
         }

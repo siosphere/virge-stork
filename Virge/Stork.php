@@ -49,7 +49,7 @@ class Stork
     {
         self::debug("Pushing websocket message");
         $zmqMessage = new ZMQMessage($message, $topics);
-        self::getZMQMessagingService()->push($zmqMessage);
+        return self::getZMQMessagingService()->push($zmqMessage);
     }
     
     /**
