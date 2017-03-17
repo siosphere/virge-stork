@@ -65,7 +65,11 @@ class ZMQMessagingService
         $context = new ZMQContext();
         $socket = $context->getSocket(ZMQ::SOCKET_PUSH, 'virge:stork');
         $socket->setSockOpt(ZMQ::SOCKOPT_LINGER, 20);
-        $host = $this->zmqServer;
+        if (filter_var($this->zmqServer, FILTER_VALIDATE_IP)) {
+            $host = $this->zmqServer;
+        } else {
+            $host = gethostbyname($this->zmqServer);
+        }
         $socket->connect(sprintf("tcp://%s:%s", $host, $this->zmqPort));
         $socket->send(serialize($message));
     }
@@ -81,6 +85,13 @@ class ZMQMessagingService
         foreach($this->websocketServers as $serverConfig) {
             $port = $serverConfig['port'];
             $host = $serverConfig['host'];
+
+            if (filter_var($host, FILTER_VALIDATE_IP)) {
+                $host = $host;
+            } else {
+                $host = gethostbyname($host);
+            }
+
             Stork::debug("Connecting to Websocket servers for broadcast: " . sprintf("tcp://%s:%s", $host, $port));
             $this->pub->connect(sprintf("tcp://%s:%s", $host, $port));
         }
