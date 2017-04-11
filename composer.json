@@ -11,12 +11,10 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
+        "virge/core": "~1.0",
+        "virge/cli": "~3.0",
         "react/zmq": "^0.3",
         "voryx/Thruway": "^0.4.2"
-    },
-    "require-dev": {
-        "virge/core": "dev-master",
-        "virge/cli": "dev-master"
     },
     "autoload": {
         "psr-4": {"Virge\\": "Virge/"}

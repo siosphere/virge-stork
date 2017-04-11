@@ -3,6 +3,10 @@
 namespace Virge\Stork\Command;
 
 use Virge\Cli;
+use Virge\Cli\Component\{
+    Command,
+    Input
+};
 use Virge\Stork\Service\PushMessagingService;
 use Virge\Stork\Service\WebsocketClientService;
 use Virge\Virge;
@@ -13,14 +17,17 @@ use Virge\Virge;
 class RunWebsocketClientCommand extends \Virge\Cli\Component\Command
 {
     const COMMAND = 'virge:stork:run_websocket_client';
+    const COMMAND_HELP = 'Listen for incoming ZMQ Messages and broadcast out to their topics';
+    const COMMAND_USAGE = 'virge:stork:run_websocket_client';
     
-    public function run()
+    public function run(Input $input)
     {
         if($this->instanceAlreadyRunning()) {
-            $this->terminate();
+            Cli::error("Instance already running");
+            $this->terminate(-1);
         }
 
-        Cli::output("Starting Websocket Client");
+        Cli::important("Starting Websocket Client");
         
         $this->getWebsocketClientService()->startClient();
     }
