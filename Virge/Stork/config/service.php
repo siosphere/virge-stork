@@ -1,10 +1,14 @@
 <?php
 
 use Virge\Core\Config;
-use Virge\Stork\Service\ZMQMessagingService;
-use Virge\Stork\Service\PushMessagingService;
-use Virge\Stork\Service\WebsocketClientService;
-use Virge\Stork\Service\AuthClientService;
+use Virge\Stork\Service\{
+    AuthClientService,
+    PushMessagingService,
+    RPCClientService,
+    RPCProviderService,
+    WebsocketClientService,
+    ZMQMessagingService
+};
 use Virge\Virge;
 
 $zmqServer = Config::get('stork', 'zmq_server');
@@ -23,3 +27,5 @@ Virge::registerService(ZMQMessagingService::class, new ZMQMessagingService($zmqS
 Virge::registerService(PushMessagingService::class, new PushMessagingService($websocketHostname));
 Virge::registerService(WebsocketClientService::class, new WebsocketClientService($websocketUrl, $realm, $role, $secret));
 Virge::registerService(AuthClientService::class, new AuthClientService($websocketUrl, $realm, $role, $secret));
+Virge::registerService(RPCProviderService::class, new RPCProviderService($websocketUrl, $realm, $role, $secret));
+Virge::registerService(RPCClientService::class, new RPCClientService($websocketUrl, $realm, $role, $secret));

@@ -12,23 +12,12 @@
                             "name": "backend",
                             "permissions": [
                                 {
-                                    "uri": "io.virge.stork.auth",
-                                    "match": "prefix",
+                                    "uri": "*",
                                     "allow": {
-                                        "register": true
-                                    }
-                                },
-                                {
-                                    "uri": "io.virge.stork.topic_auth",
-                                    "match": "prefix",
-                                    "allow": {
-                                        "register": true
-                                    }
-                                },
-                                {
-                                    "uri": "v1.*",
-                                    "allow": {
-                                        "publish": true
+                                        "register": true,
+                                        "call": true,
+                                        "publish": true,
+                                        "subscribe": true
                                     }
                                 }
                             ]
@@ -45,7 +34,7 @@
                     "type": "websocket",
                     "endpoint": {
                         "type": "tcp",
-                        "port": 80
+                        "port": 8000
                     },
                     "auth": {
                         "wampcra": {
@@ -64,7 +53,6 @@
                     },
                     "options": {
                         "enable_webstatus": false,
-                        "enable_hixie76": false,
                         "max_frame_size": 1048576,
                         "max_message_size": 1048576,
                         "auto_fragment_size": 65536,

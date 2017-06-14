@@ -69,6 +69,14 @@ Stork::authenticator(function($session, &$returnData) {
 });
 ```
 
+## RPC *alpha
+Virge::Stork provides the ability to register and call RPC methods.
+You start with a MethodController that will then register available
+RPC methods.
+
+Checkout examples/simple/rpc_caller.php and rpc_provider.php for an example.
+
+
 ## Running Examples
 
 From within examples/simple you'll need to start 3 processes:

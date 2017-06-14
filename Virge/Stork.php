@@ -4,10 +4,12 @@ namespace Virge;
 
 use Thruway\ClientSession;
 use Virge\Cli;
+use Virge\Stork\Component\RPC\Method;
 use Virge\Stork\Component\Websocket\Message as WebsocketMessage;
 use Virge\Stork\Component\Websocket\Topic;
 use Virge\Stork\Component\ZMQ\Message as ZMQMessage;
 use Virge\Stork\Service\ZMQMessagingService;
+
 /**
  * Stork is used to setup the websocket and ZMQ servers, provide authentication
  * and per-topic subscription validation. 
@@ -36,6 +38,8 @@ class Stork
     protected static $topics = [];
 
     protected static $debug = false;
+
+    protected static $rpcControllers = [];
 
     /**
      * Pass in a bool to enable or disable debug
@@ -159,6 +163,17 @@ class Stork
         }
         
         return $returnData;
+    }
+
+    public static function registerRPC(string $controllerClass)
+    {
+        self::$rpcControllers[$controllerClass] = new $controllerClass;
+        self::$rpcControllers[$controllerClass]->setup();
+    }
+
+    public static function rpc($rpcMethod, $options = [])
+    {
+        return new Method($rpcMethod, $options);
     }
     
     /**
