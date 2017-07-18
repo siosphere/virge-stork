@@ -4,6 +4,7 @@ use Virge\Cli;
 use Virge\Stork\Command\RunPublishServerCommand;
 use Virge\Stork\Command\RunWebsocketClientCommand;
 use Virge\Stork\Command\RunAuthClientCommand;
+use Virge\Stork\Command\RunMetaClientCommand;
 
 Cli::add(RunPublishServerCommand::COMMAND, RunPublishServerCommand::class)
     ->setHelpText(RunPublishServerCommand::COMMAND_HELP)
@@ -18,4 +19,9 @@ Cli::add(RunWebsocketClientCommand::COMMAND, RunWebsocketClientCommand::class)
 Cli::add(RunAuthClientCommand::COMMAND, RunAuthClientCommand::class)
     ->setHelpText(RunAuthClientCommand::COMMAND_HELP)
     ->setUsage(RunAuthClientCommand::COMMAND_USAGE)
+;
+
+Cli::add(RunMetaClientCommand::COMMAND, RunMetaClientCommand::class)
+    ->setHelpText(RunMetaClientCommand::COMMAND_HELP)
+    ->setUsage(RunMetaClientCommand::COMMAND_USAGE)
 ;

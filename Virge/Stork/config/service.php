@@ -3,6 +3,7 @@
 use Virge\Core\Config;
 use Virge\Stork\Service\{
     AuthClientService,
+    MetaClientService,
     PushMessagingService,
     RPCClientService,
     RPCProviderService,
@@ -26,6 +27,7 @@ $secret = Config::get('stork', 'secret');
 Virge::registerService(ZMQMessagingService::class, new ZMQMessagingService($zmqServer, $zmqPort, $websocketServers));
 Virge::registerService(PushMessagingService::class, new PushMessagingService($websocketHostname));
 Virge::registerService(WebsocketClientService::class, new WebsocketClientService($websocketUrl, $realm, $role, $secret));
+Virge::registerService(MetaClientService::class, new MetaClientService($websocketUrl, $realm, $role, $secret));
 Virge::registerService(AuthClientService::class, new AuthClientService($websocketUrl, $realm, $role, $secret));
 Virge::registerService(RPCProviderService::class, new RPCProviderService($websocketUrl, $realm, $role, $secret));
 Virge::registerService(RPCClientService::class, new RPCClientService($websocketUrl, $realm, $role, $secret));

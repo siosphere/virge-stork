@@ -14,7 +14,8 @@
         "virge/core": "~1.0",
         "virge/cli": "~3.0",
         "react/zmq": "^0.3",
-        "voryx/Thruway": "^0.4.2"
+        "voryx/Thruway": "^0.4.2",
+        "virge/events": "^2.1"
     },
     "autoload": {
         "psr-4": {"Virge\\": "Virge/"}

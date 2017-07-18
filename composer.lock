@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "2a1833ab514928fae14a86a633060331",
-    "content-hash": "a58f8839cfab2100f64ed19b73fbb46d",
+    "hash": "8f81218c6f9ddb7b0c1c823693d3e471",
+    "content-hash": "e3eec0032c54ea497a4444834ff75d26",
     "packages": [
         {
             "name": "cboden/ratchet",
@@ -920,6 +920,32 @@
             "time": "2017-06-02 09:51:43"
         },
         {
+            "name": "virge/api",
+            "version": "v1.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/siosphere/virge-api.git",
+                "reference": "b01c49ebfb4b8d3edba25a6d89cb33b59db7d00e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/siosphere/virge-api/zipball/b01c49ebfb4b8d3edba25a6d89cb33b59db7d00e",
+                "reference": "b01c49ebfb4b8d3edba25a6d89cb33b59db7d00e",
+                "shasum": ""
+            },
+            "require": {
+                "virge/core": "~1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Virge\\": "Virge/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "time": "2017-03-17 08:01:51"
+        },
+        {
             "name": "virge/cli",
             "version": "v3.0.3",
             "source": {
@@ -977,6 +1003,39 @@
             "time": "2016-10-01 22:34:55"
         },
         {
+            "name": "virge/db",
+            "version": "v2.3.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/siosphere/virge-db.git",
+                "reference": "463d49689735271b624318b7c61edbd76d4e01d3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/siosphere/virge-db/zipball/463d49689735271b624318b7c61edbd76d4e01d3",
+                "reference": "463d49689735271b624318b7c61edbd76d4e01d3",
+                "shasum": ""
+            },
+            "require": {
+                "virge/cli": "~3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Virge\\": "Virge/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Michael Kramer",
+                    "email": "kramer@siosphere.com"
+                }
+            ],
+            "description": "Virge::Database is used to connect to databases, run db schema migrations, and is used heavily by Virge::ORM",
+            "time": "2017-07-13 19:52:02"
+        },
+        {
             "name": "virge/enigma",
             "version": "v1.0.1",
             "source": {
@@ -1002,6 +1061,92 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "time": "2017-03-17 08:05:28"
+        },
+        {
+            "name": "virge/events",
+            "version": "v2.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/siosphere/virge-events.git",
+                "reference": "c4b4e7361c4d3a3c50a0b6fe39c57225e19b10bb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/siosphere/virge-events/zipball/c4b4e7361c4d3a3c50a0b6fe39c57225e19b10bb",
+                "reference": "c4b4e7361c4d3a3c50a0b6fe39c57225e19b10bb",
+                "shasum": ""
+            },
+            "require": {
+                "virge/api": "~1.2",
+                "virge/cli": "~3.0",
+                "virge/core": "~1.0",
+                "virge/db": "~2.0",
+                "virge/graphite": "~2.0",
+                "virge/orm": "~2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Virge\\": "Virge/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "time": "2017-05-26 23:04:10"
+        },
+        {
+            "name": "virge/graphite",
+            "version": "v2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/siosphere/virge-graphite.git",
+                "reference": "4d6d9656a5387c51c15e0397cf2b83f3e6528d74"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/siosphere/virge-graphite/zipball/4d6d9656a5387c51c15e0397cf2b83f3e6528d74",
+                "reference": "4d6d9656a5387c51c15e0397cf2b83f3e6528d74",
+                "shasum": ""
+            },
+            "require-dev": {
+                "virge/cli": "~3.0",
+                "virge/core": "~1.0",
+                "virge/db": "~2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Virge\\": "Virge/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "time": "2017-04-11 21:33:35"
+        },
+        {
+            "name": "virge/orm",
+            "version": "v2.0.12",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/siosphere/virge-orm.git",
+                "reference": "0974ddc6cc4f7f2944727ed5ec6b9d4d8fbda0b7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/siosphere/virge-orm/zipball/0974ddc6cc4f7f2944727ed5ec6b9d4d8fbda0b7",
+                "reference": "0974ddc6cc4f7f2944727ed5ec6b9d4d8fbda0b7",
+                "shasum": ""
+            },
+            "require": {
+                "virge/core": "~1.0",
+                "virge/db": "~2.3.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Virge\\": "Virge/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "time": "2017-07-13 19:51:19"
         },
         {
             "name": "voryx/thruway",
