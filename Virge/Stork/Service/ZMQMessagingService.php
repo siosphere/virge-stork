@@ -96,8 +96,10 @@ class ZMQMessagingService
             $this->pub->connect(sprintf("tcp://%s:%s", $host, $port));
         }
         
+        $host = gethostbyname($this->zmqServer);
+
         $pull = $context->getSocket(ZMQ::SOCKET_PULL);
-        $pull->bind(sprintf("tcp://*:%s", $this->zmqPort));
+        $pull->bind(sprintf("tcp://%s:%s", $host, $this->zmqPort));
         $pull->on('message', [$this, 'onZMQMessage']);
         
         $this->getLoop()->run();
@@ -110,7 +112,7 @@ class ZMQMessagingService
      */
     public function onZMQMessage($message) 
     {
-        Stork::debug("Received ZMQ Message, publishing to all connected Websocket Servers");
+        Stork::debug("Received ZMQ Message: \n ".$message." \n, publishing to all connected Websocket Servers\n\n");
         //publish the message
         $this->pub->send('virge:stork '.$message, ZMQ::MODE_NOBLOCK);
     }
