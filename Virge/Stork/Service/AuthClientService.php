@@ -2,6 +2,7 @@
 namespace Virge\Stork\Service;
 
 use Thruway\ClientSession;
+use Virge\Core\Config;
 use Virge\Stork;
 
 /**
