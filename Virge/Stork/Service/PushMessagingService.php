@@ -5,11 +5,12 @@ namespace Virge\Stork\Service;
 use Thruway\ClientSession;
 
 use Virge\Stork;
-use Virge\Stork\Component\ZMQ\Message as ZMQMessage;
+use Virge\Stork\Component\PubSubMessage;
 use Virge\Stork\Component\Websocket\Message as WebsocketMessage;
+use Virge\Virge;
 
 /**
- * Push messaging service is used to receive messages from ZMQ and broadcast
+ * Push messaging service is used to receive messages from PubSubProvider and broadcast
  * them to any clients connected on the given topic
  */
 class PushMessagingService
@@ -36,33 +37,26 @@ class PushMessagingService
     public function onSessionStart(ClientSession $session, $loop)
     {
         $this->session = $session;
-        $context = new \React\ZMQ\Context($loop);
-        
-        $this->subscription = $context->getSocket(\ZMQ::SOCKET_SUB);
-        $this->subscription->bind(sprintf("tcp://%s:5556", gethostbyname($this->websocketHostname)));
-        $this->subscription->subscribe("virge:stork");
-        $this->subscription->on('message', [$this, 'onReceiveZMQMessage']);
+
+        $this->getPubSubService()->onSessionStart($session, $loop, [$this, 'onReceiveMessage']);
     }
 
     public function onSessionEnd()
     {
-        $endpoints = $this->subscription->getEndpoints();
-        foreach($endpoints['bind'] as $endpoint) {
-            $this->subscription->unbind($endpoint);
-        }
+        $this->getPubSubServer()->onSessionEnd();
     }
     
     /**
-     * When we receive a message from the ZMQ Socket, attempt to broadcast it
+     * When we receive a message from the PubSub Provider, attempt to broadcast it
      * out to any connected clients
      * @param string $rawMessage
      */
-    public function onReceiveZMQMessage($rawMessage)
+    public function onReceiveMessage($rawMessage)
     {
-        Stork::debug("Received ZMQ Message");
-        $message = $this->getZMQMessage($rawMessage);
+        Stork::debug("Received Message");
+        $message = $this->getMessage($rawMessage);
         if(!$message) {
-            Stork::debug("Invalid ZMQ Message");
+            Stork::debug("Invalid Message");
             return;
         }
         
@@ -102,15 +96,20 @@ class PushMessagingService
     }
     
     /**
-     * Take in a serialized string and return a valid ZMQMessage or null
+     * Take in a serialized string and return a valid PubSubMessage or null
      * 
-     * @param string $rawZMQMessage
-     * @return ZMQMessage|null
+     * @param string $rawMessage
+     * @return PubSubMessage|null
      */
-    protected function getZMQMessage($rawZMQMessage) 
+    protected function getMessage($rawMessage) 
     {
-        $message = unserialize(substr($rawZMQMessage, strlen('virge:stork') + 1) );
+        $message = unserialize($rawMessage);
         
-        return $message instanceof ZMQMessage ? $message : null;
+        return $message instanceof PubSubMessage ? $message : null;
+    }
+
+    protected function getPubSubService() : PubSubService
+    {
+        return Virge::service(PubSubService::class);
     }
 }

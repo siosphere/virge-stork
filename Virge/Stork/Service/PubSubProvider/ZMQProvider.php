@@ -1,67 +1,48 @@
 <?php
-namespace Virge\Stork\Service;
+namespace Virge\Stork\Service\PubSubProvider;
 
+use Thruway\ClientSession;
+use Virge\Core\Config;
 use Virge\Stork;
-use Virge\Stork\Component\ZMQ\Message as ZMQMessage;
+use Virge\Stork\Component\PubSubMessage;
 use ZMQ;
 use ZMQContext;
 
-/**
- * Used to start a ZMQ Publish server, as well as push messages to the Publish
- * server, which will ultimately broadcast them out to the Websocket Servers.
- */
-class ZMQMessagingService
+class ZMQProvider implements \Virge\Stork\Service\PubSubProviderInterface
 {
-    /**
-     * Hold the server configuration of all our websocket servers
-     * [
-     *      [
-     *          'host'  =>  '', //hostname of your zmq
-     *          'port'  =>  '', //port ZMQ is listening on
-     *      ]
-     * ]
-     */
-    protected $websocketServers;
-    
-    /**
-     * ZMQ Publish server hostname
-     */
-    protected $zmqServer;
-    
-    /**
-     * ZMQ Publish server port
-     */
-    protected $zmqPort;
-    
-    /**
-     * ZMQ Context
-     */
-    protected $context;
-    
-    /**
-     * React Loop
-     */
-    protected $loop;
-    
-    /**
-     * 
-     * @param string $zmqServer
-     * @param string $zmqPort
-     * @param array $websocketServers
-     */
-    public function __construct($zmqServer, $zmqPort, $websocketServers) 
+    protected $subscription;
+
+    public function __construct() 
     {
-        $this->websocketServers = $websocketServers;
-        $this->zmqServer = $zmqServer;
-        $this->zmqPort = $zmqPort;
+        $this->zmqServer = Config::get('stork', 'zmq_server');
+        $this->zmqPort = Config::get('stork', 'zmq_port');
+        
+        $this->websocketServers = Config::get('stork', 'websocket_servers');
+        $this->websocketHostname = Config::get('stork', 'websocket_hostname');
     }
-    
-    /**
-     * @param ZMQMessage $message
-     */
-    public function push(ZMQMessage $message)
+
+    public function onSessionStart(ClientSession $session, $loop, callable $callback)
     {
-        Stork::debug("Pushing ZMQ Message to ZMQ Publishers");
+        $context = new \React\ZMQ\Context($loop);
+        $this->callback = $callback;
+        
+        $this->subscription = $context->getSocket(\ZMQ::SOCKET_SUB);
+        $this->subscription->bind(sprintf("tcp://%s:5556", gethostbyname($this->websocketHostname)));
+        $this->subscription->subscribe("virge:stork");
+        $this->subscription->on('message', [$this, 'onReceiveWebsocketMessage']);
+    }
+
+    public function onSessionEnd()
+    {
+        $endpoints = $this->subscription->getEndpoints();
+        foreach($endpoints['bind'] as $endpoint) {
+            $this->subscription->unbind($endpoint);
+        }
+    }
+
+    public function push(PubSubMessage $message)
+    {
+        Stork::debug("Pushing Message to ZMQ Publishers");
         $context = new ZMQContext();
         $socket = $context->getSocket(ZMQ::SOCKET_PUSH, 'virge:stork');
         $socket->setSockOpt(ZMQ::SOCKOPT_LINGER, 20);
@@ -104,6 +85,11 @@ class ZMQMessagingService
         
         $this->getLoop()->run();
     }
+
+    public function onReceiveWebsocketMessage($rawMessage)
+    {
+        call_user_func_array($this->callback, [substr($rawMessage, strlen('virge:stork') + 1)]);
+    }
     
     /**
      * When the publishing server receives a ZMQ message, broadcast it out
@@ -139,5 +125,10 @@ class ZMQMessagingService
         }
         
         return $this->loop = \React\EventLoop\Factory::create();
+    }
+
+    public function onReceiveMessage($message)
+    {
+        
     }
 }

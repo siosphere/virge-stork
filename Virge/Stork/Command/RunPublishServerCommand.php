@@ -7,7 +7,7 @@ use Virge\Cli\Component\{
     Command,
     Input
 };
-use Virge\Stork\Service\ZMQMessagingService;
+use Virge\Stork\Service\PubSubService;
 use Virge\Virge;
 
 /**
@@ -31,7 +31,7 @@ class RunPublishServerCommand extends Command
         Cli::highlight(sprintf("Quiet period before starting publish server: %ss", self::QUIET_PERIOD));
         sleep(self::QUIET_PERIOD);
         Cli::important("Starting publish server");
-        Virge::service(ZMQMessagingService::class)
+        Virge::service(PubSubService::class)
             ->startPublishingServer();
     }
 }

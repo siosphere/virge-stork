@@ -7,11 +7,11 @@ use Virge\Cli;
 use Virge\Stork\Component\RPC\Method;
 use Virge\Stork\Component\Websocket\Message as WebsocketMessage;
 use Virge\Stork\Component\Websocket\Topic;
-use Virge\Stork\Component\ZMQ\Message as ZMQMessage;
-use Virge\Stork\Service\ZMQMessagingService;
+use Virge\Stork\Component\PubSubMessage;
+use Virge\Stork\Service\PubSubService;
 
 /**
- * Stork is used to setup the websocket and ZMQ servers, provide authentication
+ * Stork is used to setup the websocket and pub/sub servers, provide authentication
  * and per-topic subscription validation. 
  * 
  * It is used to register available topics by version and feedName, setup new
@@ -51,9 +51,9 @@ class Stork
     
     public static function push($topics, WebsocketMessage $message)
     {
-        self::debug("Pushing websocket message");
-        $zmqMessage = new ZMQMessage($message, $topics);
-        return self::getZMQMessagingService()->push($zmqMessage);
+        self::debug("Pushing websocket message: " . get_class($message));
+        $pubMessage = new PubSubMessage($message, $topics);
+        return self::getPubSubService()->push($pubMessage);
     }
     
     /**
@@ -202,9 +202,9 @@ class Stork
         return [$topic, $feedId];
     }
 
-    protected static function getZMQMessagingService() : ZMQMessagingService
+    protected static function getPubSubService() : PubSubService
     {
-        return Virge::service(ZMQMessagingService::class);
+        return Virge::service(PubSubService::class);
     }
 
     public static function debug($message)
