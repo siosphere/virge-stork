@@ -24,6 +24,13 @@ $realm = Config::get('stork', 'realm');
 $role = Config::get('stork', 'role');
 $secret = Config::get('stork', 'secret');
 
+
+$pubSubProvider = Config::get('stork', 'pub_sub_provider');
+if(!$pubSubProvider) {
+    $pubSubProvider = ZMQMessagingService::class;
+}
+
+Virge::registerService(PubSubService::class, new PubSubService($pubSubProvider));
 Virge::registerService(ZMQMessagingService::class, new ZMQMessagingService($zmqServer, $zmqPort, $websocketServers));
 Virge::registerService(PushMessagingService::class, new PushMessagingService($websocketHostname));
 Virge::registerService(WebsocketClientService::class, new WebsocketClientService($websocketUrl, $realm, $role, $secret));
