@@ -42,18 +42,18 @@ Virge::registerService(WebsocketClientService::class, function() use($websocketU
     return new WebsocketClientService($websocketUrl, $realm, $role, $secret);
 });
 
-Virge::registerService(WebsocketClientService::class, function() use($websocketUrl, $realm, $role, $secret) {
+Virge::registerService(MetaClientService::class, function() use($websocketUrl, $realm, $role, $secret) {
     return new MetaClientService($websocketUrl, $realm, $role, $secret);
 });
 
-Virge::registerService(WebsocketClientService::class, function() use($websocketUrl, $realm, $role, $secret) {
+Virge::registerService(AuthClientService::class, function() use($websocketUrl, $realm, $role, $secret) {
     return new AuthClientService($websocketUrl, $realm, $role, $secret);
 });
 
-Virge::registerService(WebsocketClientService::class, function() use($websocketUrl, $realm, $role, $secret) {
+Virge::registerService(RPCProviderService::class, function() use($websocketUrl, $realm, $role, $secret) {
     return new RPCProviderService($websocketUrl, $realm, $role, $secret);
 });
 
-Virge::registerService(WebsocketClientService::class, function() use($websocketUrl, $realm, $role, $secret) {
+Virge::registerService(RPCClientService::class, function() use($websocketUrl, $realm, $role, $secret) {
     return new RPCClientService($websocketUrl, $realm, $role, $secret);
 });
