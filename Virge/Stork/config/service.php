@@ -14,26 +14,46 @@ use Virge\Stork\Service\{
 };
 use Virge\Virge;
 
-$websocketHostname = Config::get('stork', 'websocket_hostname');
-
 $websocketUrl = Config::get('stork', 'websocket_url');
 $realm = Config::get('stork', 'realm');
 $role = Config::get('stork', 'role');
 $secret = Config::get('stork', 'secret');
 
 
-$pubSubProvider = Config::get('stork', 'pub_sub_provider');
-if(!$pubSubProvider) {
-    $pubSubProvider = ZMQProvider::class;
-}
+Virge::registerService(RedisProvider::class, RedisProvider::class);
+Virge::registerService(ZMQProvider::class, ZMQProvider::class);
+Virge::registerService(PubSubService::class, function() {
+    $pubSubProvider = Config::get('stork', 'pub_sub_provider');
+    if(!$pubSubProvider) {
+        $pubSubProvider = ZMQProvider::class;
+    }
 
-Virge::registerService(RedisProvider::class, new RedisProvider());
-Virge::registerService(ZMQProvider::class, new ZMQProvider());
-Virge::registerService(PubSubService::class, new PubSubService($pubSubProvider));
+    return new PubSubService($pubSubProvider);
+});
 
-Virge::registerService(PushMessagingService::class, new PushMessagingService($websocketHostname));
-Virge::registerService(WebsocketClientService::class, new WebsocketClientService($websocketUrl, $realm, $role, $secret));
-Virge::registerService(MetaClientService::class, new MetaClientService($websocketUrl, $realm, $role, $secret));
-Virge::registerService(AuthClientService::class, new AuthClientService($websocketUrl, $realm, $role, $secret));
-Virge::registerService(RPCProviderService::class, new RPCProviderService($websocketUrl, $realm, $role, $secret));
-Virge::registerService(RPCClientService::class, new RPCClientService($websocketUrl, $realm, $role, $secret));
+Virge::registerService(PushMessagingService::class, function() {
+
+    $websocketHostname = Config::get('stork', 'websocket_hostname');
+
+    return new PushMessagingService($websocketHostname);
+});
+
+Virge::registerService(WebsocketClientService::class, function() use($websocketUrl, $realm, $role, $secret) {
+    return new WebsocketClientService($websocketUrl, $realm, $role, $secret);
+});
+
+Virge::registerService(WebsocketClientService::class, function() use($websocketUrl, $realm, $role, $secret) {
+    return new MetaClientService($websocketUrl, $realm, $role, $secret);
+});
+
+Virge::registerService(WebsocketClientService::class, function() use($websocketUrl, $realm, $role, $secret) {
+    return new AuthClientService($websocketUrl, $realm, $role, $secret);
+});
+
+Virge::registerService(WebsocketClientService::class, function() use($websocketUrl, $realm, $role, $secret) {
+    return new RPCProviderService($websocketUrl, $realm, $role, $secret);
+});
+
+Virge::registerService(WebsocketClientService::class, function() use($websocketUrl, $realm, $role, $secret) {
+    return new RPCClientService($websocketUrl, $realm, $role, $secret);
+});
