@@ -1,13 +1,14 @@
 <?php
-namespace Virge\Stork\Component\ZMQ;
+namespace Virge\Stork\Component;
 
+use Thruway\ClientSession;
 use Virge\Stork\Component\Websocket\Message as WebsocketMessage;
 
 /**
- * A message to be sent through the ZMQ sockets to the publishing server, and
+ * A message to be sent through the to the publishing server, and
  * forwarded onto the Websocket servers
  */
-class Message
+class PubSubMessage
 {
     /**
      * @var WebsocketMessage 
@@ -18,16 +19,22 @@ class Message
      * The full topic this message is meant for (version.feedName.feedId)
      * @var string
      */
-    protected $topicStr;
+    protected $topics;
+
+    /**
+     * @var \DateTime
+     */
+    protected $timestamp;
     
     /**
      * @param WebsocketMessage $message
-     * @param string $topicStr
+     * @param string[] $topicStr
      */
-    public function __construct(WebsocketMessage $message, $topicStr)
+    public function __construct(WebsocketMessage $message, $topics = [])
     {
         $this->websocketMessage = $message;
-        $this->topicStr = $topicStr;
+        $this->topics = $topics;
+        $this->timestamp = new \DateTime;
     }
     
     /**
@@ -39,10 +46,15 @@ class Message
     }
     
     /**
-     * @return string
+     * @return string[]
      */
-    public function getTopicStr()
+    public function getTopics()
     {
-        return $this->topicStr;
+        return $this->topics;
+    }
+
+    public function getTimestamp() : \DateTime
+    {
+        return $this->timestamp;
     }
 }

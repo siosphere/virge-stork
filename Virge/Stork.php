@@ -2,14 +2,16 @@
 
 namespace Virge;
 
-use Ratchet\ConnectionInterface;
-use Virge\Stork\Component\Session;
+use Thruway\ClientSession;
+use Virge\Cli;
+use Virge\Stork\Component\RPC\Method;
 use Virge\Stork\Component\Websocket\Message as WebsocketMessage;
 use Virge\Stork\Component\Websocket\Topic;
-use Virge\Stork\Component\ZMQ\Message as ZMQMessage;
+use Virge\Stork\Component\PubSubMessage;
+use Virge\Stork\Service\PubSubService;
 
 /**
- * Stork is used to setup the websocket and ZMQ servers, provide authentication
+ * Stork is used to setup the websocket and pub/sub servers, provide authentication
  * and per-topic subscription validation. 
  * 
  * It is used to register available topics by version and feedName, setup new
@@ -30,20 +32,28 @@ class Stork
     protected static $authenticator = null;
     
     /**
-     * @var \SessionHandler 
-     */
-    protected static $sessionHandler = null;
-    
-    /**
      * Holds our available topics (by version.feedName)
      * @var array 
      */
     protected static $topics = [];
-    
-    public static function push($topicStr, WebsocketMessage $message)
+
+    protected static $debug = false;
+
+    protected static $rpcControllers = [];
+
+    /**
+     * Pass in a bool to enable or disable debug
+     */
+    public static function setDebug($debug)
     {
-        $zmqMessage = new ZMQMessage($message, $topicStr);
-        Virge::service('virge.stork.service.zmq_messaging')->push($zmqMessage);
+        self::$debug = $debug;
+    }
+    
+    public static function push($topics, WebsocketMessage $message)
+    {
+        self::debug("Pushing websocket message: " . get_class($message));
+        $pubMessage = new PubSubMessage($message, $topics);
+        return self::getPubSubService()->push($pubMessage);
     }
     
     /**
@@ -71,12 +81,11 @@ class Stork
     /**
      * Verify the user is able to subscribe to their chosen topic
      * 
-     * @param ConnectionInterface $conn
+     * @param ClientSession $session
      * @param string $topicString
-     * @param string $reason
      * @return boolean
      */
-    public static function verify(ConnectionInterface $conn, $topicString, &$reason ) {
+    public static function verify($session, $topicString) {
         
         $topicData = self::getTopicFromString($topicString);
         if(!$topicData) {
@@ -91,9 +100,9 @@ class Stork
         $allowed = true;
         foreach($verifiers as $verifier) {
             if(is_callable($verifier)) {
-                $allowed = call_user_func_array($verifier, [$conn->Session, $topic, $feedId, &$reason]);
+                $allowed = call_user_func_array($verifier, [$session, $topic, $feedId, &$reason]);
             } elseif(isset(self::$verifiers[$verifier])) {
-                $allowed = call_user_func_array(self::$verifiers[$verifier], [$conn->Session, $topic, $feedId, &$reason]);
+                $allowed = call_user_func_array(self::$verifiers[$verifier], [$session, $topic, $feedId, &$reason]);
             } else {
                 $allowed = false;
                 $reason = "Invalid topic verifier: {$verifier}";
@@ -118,7 +127,7 @@ class Stork
     
     /**
      * Set our authenticator for initial websocket connection, will receive the
-     * ConnectionInterface $conn,
+     * ClientSession $session, and the return data array
      * @param callable $callable
      */
     public static function authenticator($callable)
@@ -127,23 +136,15 @@ class Stork
     }
     
     /**
-     * Set the session handler for reading in the connecting user's session
-     * @param \SessionHandlerInterface $handler
-     */
-    public static function sessionHandler(\SessionHandlerInterface $handler)
-    {
-        self::$sessionHandler = $handler;
-    }
-    
-    /**
      * Authenticate the incoming websocket connection using our authenticator.
      * If not authenticator given, grant access by default
      * 
-     * @param ConnectionInterface $conn
+     * @param string $realm
+     * @param ClientSession $session
      * @return boolean
      * @throws \InvalidArgumentException
      */
-    public static function authenticate(ConnectionInterface $conn)
+    public static function authenticate(string $realm, $session)
     {
         if(self::$authenticator === null) {
             return true;
@@ -152,34 +153,27 @@ class Stork
         if(!is_callable(self::$authenticator)) {
             throw new \InvalidArgumentException("Authenticator must be callable");
         }
-        
-        $authenticated = call_user_func_array(self::$authenticator, [$conn]);
+
+        $returnData = [];
+        $returnData['role'] = 'frontend';
+
+        $authenticated = call_user_func_array(self::$authenticator, [$session, &$returnData]);
         if(!$authenticated) {
-            $conn->close();
-            return false;
+            return [];
         }
         
-        return true;
+        return $returnData;
     }
-    
-    /**
-     * Setup the user's session and tie it to their Websocket Connection
-     * @param ConnectionInterface $conn
-     */
-    public static function setupSession(ConnectionInterface $conn)
+
+    public static function registerRPC(string $controllerClass)
     {
-        $handler = self::$sessionHandler ?: new \SessionHandler();
-        
-        if ($handler instanceof \SessionHandlerInterface) {
-            session_set_save_handler($handler, false);
-        }
-        $sessionId = $conn->WebSocket->request->getCookie(ini_get('session.name'));
-        session_id($sessionId);
-        session_start();
-        $sessionData = $_SESSION;
-        session_write_close();
-        
-        $conn->Session = new Session($sessionData);
+        self::$rpcControllers[$controllerClass] = new $controllerClass;
+        self::$rpcControllers[$controllerClass]->setup();
+    }
+
+    public static function rpc($rpcMethod, $options = [])
+    {
+        return new Method($rpcMethod, $options);
     }
     
     /**
@@ -206,5 +200,17 @@ class Stork
         $topic = self::$topics[$version][$feedName];
         
         return [$topic, $feedId];
+    }
+
+    protected static function getPubSubService() : PubSubService
+    {
+        return Virge::service(PubSubService::class);
+    }
+
+    public static function debug($message)
+    {
+        if(self::$debug) {
+            Cli::output($message);
+        }
     }
 }

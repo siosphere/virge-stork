@@ -1,12 +1,39 @@
 <?php
 
 use Virge\Core\Config;
-use Virge\Stork\Service\ZMQMessagingService;
+use Virge\Stork\Service\{
+    AuthClientService,
+    MetaClientService,
+    PubSubProvider\RedisProvider,
+    PubSubProvider\ZMQProvider,
+    PubSubService,
+    PushMessagingService,
+    RPCClientService,
+    RPCProviderService,
+    WebsocketClientService
+};
 use Virge\Virge;
 
-$zmqServer = Config::get('stork', 'zmq_server');
-$zmqPort = Config::get('stork', 'zmq_port');
+$websocketHostname = Config::get('stork', 'websocket_hostname');
 
-$websocketServers = Config::get('stork', 'websocket_servers');
+$websocketUrl = Config::get('stork', 'websocket_url');
+$realm = Config::get('stork', 'realm');
+$role = Config::get('stork', 'role');
+$secret = Config::get('stork', 'secret');
 
-Virge::registerService(ZMQMessagingService::SERVICE_ID, new ZMQMessagingService($zmqServer, $zmqPort, $websocketServers));
+
+$pubSubProvider = Config::get('stork', 'pub_sub_provider');
+if(!$pubSubProvider) {
+    $pubSubProvider = ZMQProvider::class;
+}
+
+Virge::registerService(RedisProvider::class, new RedisProvider());
+Virge::registerService(ZMQProvider::class, new ZMQProvider());
+Virge::registerService(PubSubService::class, new PubSubService($pubSubProvider));
+
+Virge::registerService(PushMessagingService::class, new PushMessagingService($websocketHostname));
+Virge::registerService(WebsocketClientService::class, new WebsocketClientService($websocketUrl, $realm, $role, $secret));
+Virge::registerService(MetaClientService::class, new MetaClientService($websocketUrl, $realm, $role, $secret));
+Virge::registerService(AuthClientService::class, new AuthClientService($websocketUrl, $realm, $role, $secret));
+Virge::registerService(RPCProviderService::class, new RPCProviderService($websocketUrl, $realm, $role, $secret));
+Virge::registerService(RPCClientService::class, new RPCClientService($websocketUrl, $realm, $role, $secret));

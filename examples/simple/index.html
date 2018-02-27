@@ -12,8 +12,27 @@ and open the template in the editor.
     </head>
     <body>
         <div>TODO write content</div>
-        <script src="http://autobahn.s3.amazonaws.com/js/autobahn.min.js"></script>
+        <script
+         src="https://autobahn.s3.amazonaws.com/autobahnjs/latest/autobahn.min.jgz">
+      </script>
 <script>
+    var connection = new autobahn.Connection({
+        url: 'ws://localhost:8080',
+        realm: 'realm1',
+        onchallenge: function() {
+            return "testtest"
+        },
+        authmethods: ['ticket']
+    });
+
+    connection.onopen = function(session) {
+        session.subscribe('v1.test.1', function(message) {
+            console.log('received', message)
+        })
+    }
+
+    connection.open()
+    /*
     var conn = new ab.Session('ws://localhost:8080',
         function() {
             
@@ -36,7 +55,7 @@ and open the template in the editor.
             console.warn('WebSocket connection closed');
         },
         {'skipSubprotocolCheck': true}
-    );
+    );*/
 </script>
     </body>
 </html>
