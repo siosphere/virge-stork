@@ -12,9 +12,12 @@ class RedisProvider implements \Virge\Stork\Service\PubSubProviderInterface
 
     protected $callback;
 
+    protected $pushClient;
+
     public function __construct()
     {
         $this->redis = null;
+        $this->pushClient = null;
     }
 
     public function onSessionStart(ClientSession $session, $loop, callable $callback)
@@ -83,6 +86,13 @@ class RedisProvider implements \Virge\Stork\Service\PubSubProviderInterface
 
         $redis = new Redis();
         $success = $redis->connect(Config::get('app', 'redis_host'), Config::get('app', 'redis_port'));
+
+        if(Config::get('app', 'redis_pass')) {
+            if(!$redis->auth(Config::get('app', 'redis_pass'))) {
+                throw new \RuntimeException('Failed to authenticate to Redis');
+            }
+        }
+
         $redis->setOption(Redis::OPT_READ_TIMEOUT, 100);
         if(!$success) {
             throw new \RuntimeException("Failed to connect to Redis");
