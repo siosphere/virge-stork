@@ -58,6 +58,13 @@ class RedisProvider implements \Virge\Stork\Service\PubSubProviderInterface
 
         $redis = new Redis();
         $success = $redis->pconnect(Config::get('app', 'redis_host'), Config::get('app', 'redis_port'));
+
+        if(Config::get('app', 'redis_pass')) {
+            if(!$redis->auth(Config::get('app', 'redis_pass'))) {
+                throw new \RuntimeException('Failed to authenticate to Redis');
+            }
+        }
+
         $redis->setOption(Redis::OPT_READ_TIMEOUT, 6000);
         if(!$success) {
             throw new \RuntimeException("Failed to connect to Redis");
